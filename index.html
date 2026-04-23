@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector · Moodin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#2a1a5e;
+  --purple-mid:#3c3489;
+  --purple-light:#7f77dd;
+  --purple-pale:#cecbf6;
+  --purple-ghost:#eeedfe;
+  --cream:#faf7f0;
+  --cream-dark:#f0ead8;
+  --dark:#1a0f3d;
+  --text:#1a1a1a;
+  --muted:#5f5e5a;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--text);background:var(--cream);overflow-x:hidden}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--dark);display:flex;align-items:center;justify-content:center;z-index:1000;transition:opacity 0.6s ease}
+#login-screen.hidden{opacity:0;pointer-events:none}
+.login-box{width:360px;padding:48px 40px;background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.15);border-radius:16px}
+.login-logo{font-family:var(--serif);font-size:36px;font-weight:400;color:#fff;letter-spacing:-1px;margin-bottom:8px}
+.login-sub{font-size:13px;color:var(--purple-pale);margin-bottom:40px;letter-spacing:1px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;letter-spacing:2px;color:var(--purple-pale);margin-bottom:8px}
+.login-field input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:14px;font-family:var(--sans);outline:none;transition:border 0.2s}
+.login-field input:focus{border-color:var(--purple-light)}
+.login-btn{width:100%;padding:14px;background:var(--purple-light);border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:var(--sans);transition:background 0.2s}
+.login-btn:hover{background:var(--purple-mid)}
+.login-error{font-size:12px;color:#f09595;margin-top:12px;min-height:18px;text-align:center}
+
+/* NAV */
+#main-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;justify-content:space-between;align-items:center;transition:background 0.3s,padding 0.3s}
+#main-nav.scrolled{background:rgba(42,26,94,0.96);padding:14px 48px;backdrop-filter:blur(8px)}
+.nav-logo{font-family:var(--serif);font-size:22px;color:#fff;letter-spacing:-0.5px;text-decoration:none}
+.nav-logo span{color:var(--purple-pale);font-size:13px;margin-left:8px;letter-spacing:2px;font-family:var(--sans)}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:12px;letter-spacing:1.5px;color:rgba(255,255,255,0.6);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:#fff}
+.nav-cta{font-size:12px;letter-spacing:1px;padding:8px 20px;border:0.5px solid rgba(255,255,255,0.4);border-radius:100px;color:#fff;text-decoration:none;transition:all 0.2s}
+.nav-cta:hover{background:rgba(255,255,255,0.1)}
+
+/* SECTIONS */
+section{position:relative}
+
+/* HERO */
+#hero{min-height:100vh;background:var(--dark);display:flex;align-items:center;padding:120px 48px 80px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(127,119,221,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(127,119,221,0.06) 1px,transparent 1px);background-size:60px 60px}
+.hero-glow{position:absolute;top:-20%;left:20%;width:60%;height:80%;background:radial-gradient(ellipse,rgba(83,74,183,0.15) 0%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-eyebrow{font-size:11px;letter-spacing:4px;color:var(--purple-light);margin-bottom:32px;display:flex;align-items:center;gap:16px}
+.hero-eyebrow::before{content:'';display:block;width:32px;height:1px;background:var(--purple-light)}
+.hero-title{font-family:var(--serif);font-size:96px;font-weight:400;line-height:0.95;letter-spacing:-3px;color:#fff;margin-bottom:24px}
+.hero-title em{color:var(--purple-pale);font-style:normal}
+.hero-claim{font-family:var(--serif);font-size:24px;font-weight:400;line-height:1.4;color:rgba(255,255,255,0.6);margin-bottom:56px;max-width:560px;font-style:italic}
+.hero-scroll{display:flex;align-items:center;gap:16px;font-size:11px;letter-spacing:3px;color:var(--purple-pale)}
+.hero-scroll-line{width:48px;height:1px;background:var(--purple-mid);animation:pulse-line 2s infinite}
+@keyframes pulse-line{0%,100%{width:48px;opacity:0.6}50%{width:64px;opacity:1}}
+
+/* RESUMEN EJECUTIVO */
+#resumen{padding:120px 48px;background:var(--cream)}
+.section-label{font-size:11px;letter-spacing:4px;color:var(--purple-light);margin-bottom:48px;display:flex;align-items:center;gap:16px}
+.section-label::before{content:'';display:block;width:24px;height:1px;background:var(--purple-light)}
+.resumen-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.resumen-left h2{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;color:var(--purple);margin-bottom:32px}
+.resumen-left p{font-size:17px;line-height:1.75;color:var(--muted);margin-bottom:20px}
+.resumen-right{padding-top:16px}
+.stat-block{padding:32px 0;border-top:0.5px solid rgba(42,26,94,0.15)}
+.stat-block:last-child{border-bottom:0.5px solid rgba(42,26,94,0.15)}
+.stat-num{font-family:var(--serif);font-size:48px;color:var(--purple);line-height:1;margin-bottom:8px}
+.stat-label{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* DIRECCION */
+#direccion{padding:120px 48px;background:var(--purple);color:#fff;overflow:hidden;position:relative}
+.dir-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:48px 48px}
+.dir-content{position:relative;z-index:1}
+.dir-content .section-label{color:var(--purple-pale)}
+.dir-content .section-label::before{background:var(--purple-pale)}
+.dir-headline{font-family:var(--serif);font-size:64px;font-weight:400;line-height:1.05;letter-spacing:-2px;max-width:800px;margin-bottom:64px}
+.dir-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:48px}
+.dir-col h3{font-size:13px;letter-spacing:2px;color:var(--purple-pale);margin-bottom:20px;padding-bottom:16px;border-bottom:0.5px solid rgba(255,255,255,0.15)}
+.dir-col p{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.65)}
+.dir-quote{margin-top:80px;padding:48px;background:rgba(255,255,255,0.05);border-left:2px solid var(--purple-light);border-radius:0 8px 8px 0}
+.dir-quote p{font-family:var(--serif);font-size:24px;font-style:italic;color:rgba(255,255,255,0.8);line-height:1.5}
+
+/* PROPUESTA VALOR */
+#propuesta{padding:120px 48px;background:var(--cream-dark)}
+.prop-header{max-width:640px;margin-bottom:80px}
+.prop-header h2{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;color:var(--purple);margin-bottom:24px}
+.prop-header p{font-size:17px;line-height:1.75;color:var(--muted)}
+.prop-cards{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:rgba(42,26,94,0.1);border-radius:16px;overflow:hidden}
+.prop-card{padding:48px;background:var(--cream);transition:background 0.3s}
+.prop-card:hover{background:#fff}
+.prop-card-num{font-size:11px;letter-spacing:3px;color:var(--purple-light);margin-bottom:24px}
+.prop-card h3{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--purple);margin-bottom:16px;line-height:1.2}
+.prop-card p{font-size:15px;line-height:1.7;color:var(--muted)}
+
+/* COBERTURA */
+#cobertura{padding:120px 48px;background:var(--dark);color:#fff}
+.cob-label{font-size:11px;letter-spacing:4px;color:var(--purple-pale);margin-bottom:48px;display:flex;align-items:center;gap:16px}
+.cob-label::before{content:'';display:block;width:24px;height:1px;background:var(--purple-pale)}
+.cob-intro{font-family:var(--serif);font-size:48px;font-weight:400;line-height:1.1;letter-spacing:-1px;max-width:700px;margin-bottom:80px}
+.cob-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:rgba(255,255,255,0.06);border-radius:16px;overflow:hidden}
+.cob-col{padding:56px;background:rgba(255,255,255,0.03)}
+.cob-col-head{font-size:11px;letter-spacing:3px;color:var(--purple-pale);margin-bottom:32px;padding-bottom:24px;border-bottom:0.5px solid rgba(255,255,255,0.1)}
+.cob-item{padding:20px 0;border-bottom:0.5px solid rgba(255,255,255,0.07)}
+.cob-item:last-child{border-bottom:none}
+.cob-item-title{font-size:14px;font-weight:500;color:#fff;margin-bottom:6px}
+.cob-item-desc{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6}
+
+/* MODELO VECTOR */
+#modelo{padding:120px 48px;background:var(--cream)}
+.modelo-header{text-align:center;max-width:700px;margin:0 auto 100px}
+.modelo-header h2{font-family:var(--serif);font-size:52px;font-weight:400;letter-spacing:-1px;color:var(--purple);margin-bottom:24px;line-height:1.1}
+.modelo-header p{font-size:17px;line-height:1.75;color:var(--muted)}
+.modelo-layers{position:relative;max-width:900px;margin:0 auto}
+.modelo-layer{display:grid;grid-template-columns:200px 1fr;gap:48px;align-items:center;padding:40px 0;border-top:0.5px solid rgba(42,26,94,0.12);position:relative;cursor:pointer;transition:all 0.3s}
+.modelo-layer:last-child{border-bottom:0.5px solid rgba(42,26,94,0.12)}
+.modelo-layer:hover .layer-bar{transform:scaleX(1.05)}
+.layer-num{font-size:11px;letter-spacing:3px;color:var(--purple-light);margin-bottom:8px}
+.layer-name{font-family:var(--serif);font-size:24px;color:var(--purple);font-weight:400}
+.layer-right{display:flex;align-items:center;gap:32px}
+.layer-bar-wrap{flex:1;height:4px;background:rgba(42,26,94,0.08);border-radius:2px;overflow:hidden}
+.layer-bar{height:100%;background:var(--purple-light);border-radius:2px;transform-origin:left;transition:transform 0.6s cubic-bezier(.22,.61,.36,1)}
+.layer-desc{font-size:15px;line-height:1.7;color:var(--muted);max-width:400px}
+
+/* ENTREGABLES */
+#entregables{padding:120px 48px;background:var(--purple);color:#fff}
+.ent-label{font-size:11px;letter-spacing:4px;color:var(--purple-pale);margin-bottom:48px;display:flex;align-items:center;gap:16px}
+.ent-label::before{content:'';display:block;width:24px;height:1px;background:var(--purple-pale)}
+.ent-intro{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;max-width:700px;margin-bottom:80px}
+.ent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,0.06);border-radius:16px;overflow:hidden}
+.ent-card{padding:40px;background:rgba(255,255,255,0.03);transition:background 0.3s}
+.ent-card:hover{background:rgba(255,255,255,0.07)}
+.ent-freq{font-size:11px;letter-spacing:2px;color:var(--purple-pale);margin-bottom:20px}
+.ent-card h3{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:16px;font-weight:400;line-height:1.2}
+.ent-card p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.5)}
+.ent-standard{margin-top:48px;padding:40px;background:rgba(255,255,255,0.04);border-radius:12px;border:0.5px solid rgba(255,255,255,0.1)}
+.ent-standard h4{font-size:11px;letter-spacing:3px;color:var(--purple-pale);margin-bottom:20px}
+.ent-standard-list{display:flex;flex-wrap:wrap;gap:12px}
+.ent-tag{font-size:12px;padding:8px 16px;border-radius:100px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border:0.5px solid rgba(255,255,255,0.1)}
+
+/* GOBERNANZA */
+#gobernanza{padding:120px 48px;background:var(--cream-dark)}
+.gov-header{max-width:640px;margin-bottom:80px}
+.gov-header h2{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;color:var(--purple);margin-bottom:24px}
+.gov-header p{font-size:17px;line-height:1.75;color:var(--muted)}
+.gov-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.gov-block{padding:40px;background:var(--cream);border-radius:12px;border:0.5px solid rgba(42,26,94,0.1)}
+.gov-block h3{font-size:13px;letter-spacing:2px;color:var(--purple-light);margin-bottom:20px}
+.gov-block ul{list-style:none}
+.gov-block ul li{padding:12px 0;border-bottom:0.5px solid rgba(42,26,94,0.08);font-size:15px;color:var(--muted);line-height:1.5;display:flex;gap:12px}
+.gov-block ul li:last-child{border-bottom:none}
+.gov-block ul li::before{content:'→';color:var(--purple-light);flex-shrink:0}
+
+/* CAPACIDADES */
+#capacidades{padding:120px 48px;background:var(--dark);color:#fff}
+.cap-label{font-size:11px;letter-spacing:4px;color:var(--purple-pale);margin-bottom:48px;display:flex;align-items:center;gap:16px}
+.cap-label::before{content:'';display:block;width:24px;height:1px;background:var(--purple-pale)}
+.cap-intro{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;max-width:700px;margin-bottom:80px}
+.cap-list{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
+.cap-item{padding:32px;background:rgba(255,255,255,0.04);border-radius:12px;border:0.5px solid rgba(255,255,255,0.08);transition:border-color 0.3s}
+.cap-item:hover{border-color:rgba(127,119,221,0.4)}
+.cap-item h3{font-size:16px;font-weight:500;color:#fff;margin-bottom:12px}
+.cap-item p{font-size:13px;line-height:1.7;color:rgba(255,255,255,0.5)}
+
+/* ECONOMICA */
+#economica{padding:120px 48px;background:var(--cream)}
+.eco-header{max-width:640px;margin-bottom:80px}
+.eco-header h2{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.1;letter-spacing:-1px;color:var(--purple);margin-bottom:24px}
+.eco-header p{font-size:17px;line-height:1.75;color:var(--muted)}
+.eco-table{width:100%;border-collapse:collapse;margin-bottom:48px}
+.eco-table th{font-size:11px;letter-spacing:2px;color:var(--purple-light);text-align:left;padding:16px 24px;border-bottom:2px solid var(--purple)}
+.eco-table td{padding:20px 24px;border-bottom:0.5px solid rgba(42,26,94,0.1);font-size:15px;color:var(--muted);vertical-align:top;line-height:1.6}
+.eco-table td:first-child{color:var(--purple);font-weight:500}
+.eco-note{padding:32px;background:var(--purple-ghost);border-radius:12px;font-size:14px;color:var(--purple-mid);line-height:1.7}
+
+/* CIERRE */
+#cierre{min-height:80vh;background:var(--dark);display:flex;align-items:center;padding:120px 48px;position:relative;overflow:hidden}
+.cierre-bg{position:absolute;inset:0}
+.cierre-glow{position:absolute;bottom:-20%;right:10%;width:60%;height:80%;background:radial-gradient(ellipse,rgba(83,74,183,0.12) 0%,transparent 70%)}
+.cierre-content{position:relative;z-index:1;max-width:800px}
+.cierre-content h2{font-family:var(--serif);font-size:72px;font-weight:400;line-height:1;letter-spacing:-2px;color:#fff;margin-bottom:32px}
+.cierre-content h2 em{color:var(--purple-pale);font-style:normal}
+.cierre-content p{font-size:18px;line-height:1.75;color:rgba(255,255,255,0.6);margin-bottom:48px;max-width:560px}
+.cierre-contacts{display:flex;gap:48px;margin-bottom:64px}
+.contact-item label{display:block;font-size:11px;letter-spacing:2px;color:var(--purple-pale);margin-bottom:8px}
+.contact-item span{font-size:16px;color:#fff}
+.cierre-steps{padding:40px;background:rgba(255,255,255,0.04);border-radius:12px;border:0.5px solid rgba(255,255,255,0.1)}
+.cierre-steps h4{font-size:11px;letter-spacing:3px;color:var(--purple-pale);margin-bottom:24px}
+.cierre-steps ol{list-style:none;counter-reset:steps}
+.cierre-steps ol li{counter-increment:steps;display:flex;gap:16px;align-items:flex-start;padding:12px 0;border-bottom:0.5px solid rgba(255,255,255,0.07);font-size:14px;color:rgba(255,255,255,0.6);line-height:1.6}
+.cierre-steps ol li:last-child{border-bottom:none}
+.cierre-steps ol li::before{content:counter(steps);display:flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--purple-mid);border-radius:50%;font-size:11px;color:#fff;flex-shrink:0;margin-top:1px}
+
+/* FOOTER */
+footer{padding:32px 48px;background:#0f0820;display:flex;justify-content:space-between;align-items:center}
+footer span{font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3)}
+
+/* SCROLL ANIMATIONS */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 0.8s ease,transform 0.8s cubic-bezier(.22,.61,.36,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Vector.</div>
+    <div class="login-sub">MOODIN POLICY · ACCESO RESTRINGIDO</div>
+    <div class="login-field">
+      <label>EMAIL</label>
+      <input type="email" id="login-email" placeholder="usuario@email.com">
+    </div>
+    <div class="login-field">
+      <label>CONTRASEÑA</label>
+      <input type="password" id="login-pw" placeholder="••••••••">
+    </div>
+    <button class="login-btn" id="login-btn">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <a href="#hero" class="nav-logo">Vector. <span>BY MOODIN</span></a>
+  <div class="nav-links">
+    <a href="#resumen">Resumen</a>
+    <a href="#modelo">Método</a>
+    <a href="#entregables">Entregables</a>
+    <a href="#economica">Inversión</a>
+  </div>
+  <a href="#cierre" class="nav-cta">Contacto</a>
+</nav>
+
+<!-- 1. HERO -->
+<section id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">MOODIN POLICY · INTELIGENCIA POLÍTICO-REGULATORIA</div>
+    <h1 class="hero-title">Vec<em>tor.</em></h1>
+    <p class="hero-claim">La dirección del entorno importa más que el ruido. Nosotros leemos el movimiento antes de que sea evidente.</p>
+    <div class="hero-scroll">
+      <div class="hero-scroll-line"></div>
+      EXPLORAR
+    </div>
+  </div>
+</section>
+
+<!-- 2. RESUMEN EJECUTIVO -->
+<section id="resumen">
+  <div class="section-label reveal">RESUMEN EJECUTIVO</div>
+  <div class="resumen-grid">
+    <div class="resumen-left">
+      <h2 class="reveal">Inteligencia político-regulatoria para el sector farmacéutico.</h2>
+      <p class="reveal reveal-delay-1">El Departamento de Public Affairs no necesita más cobertura. Necesita criterio: la capacidad de distinguir qué movimientos del entorno europeo y español importan, cuándo importan y qué hacer con ellos.</p>
+      <p class="reveal reveal-delay-2">Vector es el servicio de Moodin diseñado específicamente para eso. Combina detección sistemática, análisis político estructurado y recomendaciones accionables con trazabilidad completa a fuentes primarias.</p>
+    </div>
+    <div class="resumen-right">
+      <div class="stat-block reveal">
+        <div class="stat-num">UE + ES</div>
+        <div class="stat-label">Cobertura dual: Comisión Europea, Parlamento, Consejo y el perímetro completo España — Gobierno, Cortes, agencias y CCAA prioritarias</div>
+      </div>
+      <div class="stat-block reveal reveal-delay-1">
+        <div class="stat-num">5 capas</div>
+        <div class="stat-label">Señales débiles · Líneas de presión · Epicentros de decisión · Ondas de impacto en España · Ventanas de intervención</div>
+      </div>
+      <div class="stat-block reveal reveal-delay-2">
+        <div class="stat-num">6 entregables</div>
+        <div class="stat-label">Desde el boletín diario hasta el informe anual de cierre. Cada uno con nivel de confianza declarado y trazabilidad a fuente primaria</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. DIRECCIÓN -->
+<section id="direccion">
+  <div class="dir-grid-bg"></div>
+  <div class="dir-content">
+    <div class="cob-label reveal" style="color:var(--purple-pale)">LA DIRECCIÓN DEL ENTORNO IMPORTA MÁS QUE EL RUIDO</div>
+    <h2 class="dir-headline reveal">La mayoría reacciona cuando la norma ya está publicada. Para entonces, la decisión real se tomó meses antes.</h2>
+    <div class="dir-cols">
+      <div class="dir-col reveal">
+        <h3>EL PROBLEMA</h3>
+        <p>El seguimiento convencional cubre el sismo — la publicación oficial, el trámite, el voto. No lee la tectónica que lo produce. Cuando el expediente es público, la ventana de influencia ya se ha cerrado.</p>
+      </div>
+      <div class="dir-col reveal reveal-delay-1">
+        <h3>EL RIESGO</h3>
+        <p>Un departamento de Public Affairs que opera en modo reactivo no puede anticipar impactos sobre acceso, precio y reembolso, compra pública o reputación. Solo puede gestionarlos una vez que ya están encima.</p>
+      </div>
+      <div class="dir-col reveal reveal-delay-2">
+        <h3>LA ALTERNATIVA</h3>
+        <p>Anticipación estructurada: una lectura política disciplinada que combina señales débiles, precedente histórico y análisis de actor para construir escenarios accionables antes de que cristalicen en decisiones.</p>
+      </div>
+    </div>
+    <div class="dir-quote reveal">
+      <p>"No vendemos predicción cuantitativa donde no existe base de datos suficiente. Vendemos juicio consultor formalizado, auditable y útil — con niveles de confianza explícitos en cada recomendación."</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4. PROPUESTA DE VALOR -->
+<section id="propuesta">
+  <div class="section-label reveal">LA PROPUESTA DE VALOR</div>
+  <div class="prop-header">
+    <h2 class="reveal">Lo que Vector hace diferente.</h2>
+    <p class="reveal reveal-delay-1">No es un agregador de noticias con capa analítica. Es un servicio de inteligencia construido sobre metodología propietaria y equipo senior con exposición política real.</p>
+  </div>
+  <div class="prop-cards reveal">
+    <div class="prop-card">
+      <div class="prop-card-num">01</div>
+      <h3>Criterio, no cobertura</h3>
+      <p>Filtramos el ruido antes de que llegue al cliente. Cada entregable ya tiene la priorización hecha. El cliente lee lo que importa, no todo lo que ocurrió.</p>
+    </div>
+    <div class="prop-card">
+      <div class="prop-card-num">02</div>
+      <h3>Trazabilidad absoluta</h3>
+      <p>Cada afirmación está vinculada a su fuente primaria — con enlace, referencia y fecha. Ninguna lectura sobrevive sin su evidencia.</p>
+    </div>
+    <div class="prop-card">
+      <div class="prop-card-num">03</div>
+      <h3>Niveles de confianza declarados</h3>
+      <p>Toda recomendación incluye su nivel de confianza: alta, media o exploratoria. El cliente sabe exactamente cuánto peso puede poner en cada lectura.</p>
+    </div>
+    <div class="prop-card">
+      <div class="prop-card-num">04</div>
+      <h3>Traducción a España</h3>
+      <p>La lectura europea solo vale si aterriza en la realidad del cliente. Cada análisis UE incluye implicaciones concretas para acceso, reembolso, compra pública e industria en España.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. COBERTURA -->
+<section id="cobertura">
+  <div class="cob-label reveal">COBERTURA ESTRATÉGICA UE + ESPAÑA</div>
+  <h2 class="cob-intro reveal">El perímetro completo. Sin puntos ciegos.</h2>
+  <div class="cob-grid reveal">
+    <div class="cob-col">
+      <div class="cob-col-head">UNIÓN EUROPEA</div>
+      <div class="cob-item">
+        <div class="cob-item-title">Comisión Europea</div>
+        <div class="cob-item-desc">DG SANTE, GROW, RTD, ENV, COMP y TRADE. Agendas de Colegio, roadmaps, consultas públicas, actos delegados, posicionamientos de gabinetes.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">Parlamento Europeo</div>
+        <div class="cob-item-desc">ENVI, ITRE, IMCO, BUDG y ECON. Ponencias, enmiendas, shadow rapporteurs, posicionamiento de grupos y ponentes clave.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">Consejo de la UE</div>
+        <div class="cob-item-desc">Rotación de presidencias, grupos de trabajo, dinámicas de coalición entre Estados miembros.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">Actores periféricos</div>
+        <div class="cob-item-desc">EMA, HERA, EUnetHTA, EFPIA, think tanks con capacidad de agenda-setting (Bruegel, CEPS) y prensa especializada.</div>
+      </div>
+    </div>
+    <div class="cob-col">
+      <div class="cob-col-head">ESPAÑA</div>
+      <div class="cob-item">
+        <div class="cob-item-title">Gobierno y ministerios</div>
+        <div class="cob-item-desc">Sanidad, Industria, Ciencia, Hacienda. Consejos de Ministros, Comisiones Delegadas, nombramientos y reales decretos.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">Congreso y Senado</div>
+        <div class="cob-item-desc">Comisiones de Sanidad, Industria, Ciencia y Presupuestos. PNL, proposiciones, comparecencias y preguntas parlamentarias.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">Agencias reguladoras</div>
+        <div class="cob-item-desc">AEMPS, CNMC, Consejo Interterritorial del SNS, Comisión Permanente de Farmacia.</div>
+      </div>
+      <div class="cob-item">
+        <div class="cob-item-title">CCAA prioritarias</div>
+        <div class="cob-item-desc">Cobertura sistemática de Cataluña, Madrid, País Vasco, Andalucía y Comunidad Valenciana. Resto por alerta.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. MODELO VECTOR -->
+<section id="modelo">
+  <div class="section-label reveal" style="justify-content:center">MODELO VECTOR</div>
+  <div class="modelo-header">
+    <h2 class="reveal">Dirección, intensidad, trayectoria e impacto.</h2>
+    <p class="reveal reveal-delay-1">Cinco capas de lectura que estructuran cada entregable y cada recomendación. No son etiquetas: son categorías de análisis.</p>
+  </div>
+  <div class="modelo-layers">
+    <div class="modelo-layer reveal" data-progress="0.95">
+      <div>
+        <div class="layer-num">01</div>
+        <div class="layer-name">Señales débiles</div>
+      </div>
+      <div class="layer-right">
+        <div class="layer-bar-wrap"><div class="layer-bar" style="width:95%"></div></div>
+        <div class="layer-desc">Borradores filtrados, cambios de lenguaje en consultas públicas, nombramientos, variaciones en el calendario institucional. Lo que todavía no es noticia pero ya es señal.</div>
+      </div>
+    </div>
+    <div class="modelo-layer reveal reveal-delay-1">
+      <div>
+        <div class="layer-num">02</div>
+        <div class="layer-name">Líneas de presión</div>
+      </div>
+      <div class="layer-right">
+        <div class="layer-bar-wrap"><div class="layer-bar" style="width:82%"></div></div>
+        <div class="layer-desc">Qué coaliciones se forman, qué think tanks mueven qué papers, dónde se acumula presión social, mediática o industrial antes de que se exprese normativamente.</div>
+      </div>
+    </div>
+    <div class="modelo-layer reveal reveal-delay-2">
+      <div>
+        <div class="layer-num">03</div>
+        <div class="layer-name">Epicentros de decisión</div>
+      </div>
+      <div class="layer-right">
+        <div class="layer-bar-wrap"><div class="layer-bar" style="width:70%"></div></div>
+        <div class="layer-desc">El punto real donde se decide — que rara vez es donde se vota. Ponentes, gabinetes, direcciones generales, técnicos con influencia asimétrica.</div>
+      </div>
+    </div>
+    <div class="modelo-layer reveal">
+      <div>
+        <div class="layer-num">04</div>
+        <div class="layer-name">Ondas de impacto</div>
+      </div>
+      <div class="layer-right">
+        <div class="layer-bar-wrap"><div class="layer-bar" style="width:88%"></div></div>
+        <div class="layer-desc">Qué significa cada movimiento para autorización, precio y reembolso, compra pública, competitividad industrial y acceso al paciente en España.</div>
+      </div>
+    </div>
+    <div class="modelo-layer reveal reveal-delay-1">
+      <div>
+        <div class="layer-num">05</div>
+        <div class="layer-name">Ventanas de intervención</div>
+      </div>
+      <div class="layer-right">
+        <div class="layer-bar-wrap"><div class="layer-bar" style="width:76%"></div></div>
+        <div class="layer-desc">El momento útil para actuar — no antes (inaudible), no después (irrelevante). Con recomendación de posicionamiento, interlocutor y nivel de confianza declarado.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. ENTREGABLES -->
+<section id="entregables">
+  <div class="ent-label reveal">ENTREGABLES PARA LA TOMA DE DECISIONES</div>
+  <h2 class="ent-intro reveal">Seis formatos. Un estándar.</h2>
+  <div class="ent-grid reveal">
+    <div class="ent-card">
+      <div class="ent-freq">DIARIA · L-V</div>
+      <h3>Boletín diario express</h3>
+      <p>Barrido de señales con triage aplicado. Máximo una pantalla. Lo relevante arriba; el ruido ya está filtrado. Lectura antes de las 10:00.</p>
+    </div>
+    <div class="ent-card">
+      <div class="ent-freq">AD HOC · &lt; 4 HORAS</div>
+      <h3>Alerta flash</h3>
+      <p>Activación inmediata ante ruptura o señal crítica. Diagnóstico en caliente, lectura política y primera recomendación en menos de 4 horas laborables.</p>
+    </div>
+    <div class="ent-card">
+      <div class="ent-freq">SEMANAL · VIERNES</div>
+      <h3>Informe semanal consolidado</h3>
+      <p>Síntesis de la semana por los cuatro dossiers, cambios de estado en expedientes prioritarios y calendario de la semana siguiente.</p>
+    </div>
+    <div class="ent-card">
+      <div class="ent-freq">MENSUAL</div>
+      <h3>Informe mensual estratégico</h3>
+      <p>Lectura de fondo por las cinco capas. Escenarios con niveles de confianza. Recomendaciones accionables priorizadas. Base de la reunión mensual.</p>
+    </div>
+    <div class="ent-card">
+      <div class="ent-freq">TRIMESTRAL + AD HOC</div>
+      <h3>Mapping de stakeholders</h3>
+      <p>Actualización del mapa de decisores, influenciadores y bloqueadores. Nuevos actores emergentes, cambios de posición, ventanas de acceso.</p>
+    </div>
+    <div class="ent-card">
+      <div class="ent-freq">ANUAL</div>
+      <h3>Informe anual de cierre</h3>
+      <p>Consolidación de todos los entregables del año. Evaluación global del servicio, dossiers más intensos y agenda regulatoria prospectiva.</p>
+    </div>
+  </div>
+  <div class="ent-standard reveal">
+    <h4>ESTÁNDAR TRANSVERSAL A TODOS LOS ENTREGABLES</h4>
+    <div class="ent-standard-list">
+      <span class="ent-tag">Trazabilidad a fuente primaria</span>
+      <span class="ent-tag">Nivel de confianza declarado</span>
+      <span class="ent-tag">Estado · Lectura · Implicación España · Recomendación</span>
+      <span class="ent-tag">Lenguaje orientado a decisión</span>
+      <span class="ent-tag">Sin jerga ornamental</span>
+    </div>
+  </div>
+</section>
+
+<!-- 8. GOBERNANZA -->
+<section id="gobernanza">
+  <div class="section-label reveal">GOBERNANZA Y FORMA DE TRABAJAR</div>
+  <div class="gov-header">
+    <h2 class="reveal">Un servicio que no depende de una sola persona.</h2>
+    <p class="reveal reveal-delay-1">Modelo operativo diseñado para la continuidad, la respuesta rápida y la integración fluida con el equipo interno de Public Affairs.</p>
+  </div>
+  <div class="gov-grid reveal">
+    <div class="gov-block">
+      <h3>MODELO OPERATIVO</h3>
+      <ul>
+        <li>SPOC senior con dedicación nominal al servicio, accesible en horario ampliado y por canal directo</li>
+        <li>Equipo core de 3 consultores + 1 analista junior con back-up cruzado garantizado</li>
+        <li>Reunión mensual estructurada sobre el informe estratégico — 90 minutos, acta con acuerdos</li>
+        <li>Canal de mensajería compartido para consultas rápidas — SLA de respuesta 4 horas laborables</li>
+      </ul>
+    </div>
+    <div class="gov-block">
+      <h3>EQUIPO ASIGNADO</h3>
+      <ul>
+        <li>Marc Cases — SPOC y Director del servicio. 10+ años public affairs, analista político RAC1 y France Info</li>
+        <li>Àngel Mesado — Lead analista UE. Socio fundador, especialista en comunicación estratégica e institucional</li>
+        <li>Guillem Casals — Lead analista España y CCAA. Trayectoria en administración pública autonómica y local</li>
+        <li>Paula Flores — Analista político-regulatoria. Especialista en impacto de política pública</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 9. CAPACIDADES -->
+<section id="capacidades">
+  <div class="cap-label reveal">CAPACIDADES COMPLEMENTARIAS</div>
+  <h2 class="cap-intro reveal">Más allá del servicio core.</h2>
+  <div class="cap-list reveal">
+    <div class="cap-item">
+      <h3>Bolsa de horas anual</h3>
+      <p>Hasta 100 horas para informes ad hoc, análisis urgentes, preparación de reuniones institucionales y apoyo a consultas públicas. Tarifas por seniority, reporting mensual de uso.</p>
+    </div>
+    <div class="cap-item">
+      <h3>Bruselas presencial</h3>
+      <p>Cobertura con presencia física en semanas clave del calendario europeo. Aperturas de Presidencia, votaciones ENVI/ITRE, reuniones de Colegio decisivas. Activable por bloques.</p>
+    </div>
+    <div class="cap-item">
+      <h3>Advocacy ejecución</h3>
+      <p>Traslación de las recomendaciones accionables a ejecución de advocacy: agenda institucional, engagement de interlocutores, preparación de argumentarios. Propuesta por campaña.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10. ECONÓMICA -->
+<section id="economica">
+  <div class="section-label reveal">PROPUESTA ECONÓMICA</div>
+  <div class="eco-header">
+    <h2 class="reveal">Estructura clara, sin partidas ocultas.</h2>
+    <p class="reveal reveal-delay-1">El fee cubre la totalidad del perímetro descrito: cobertura UE + España, cuatro dossiers temáticos, seis entregables recurrentes y el modelo de gobernanza completo.</p>
+  </div>
+  <table class="eco-table reveal">
+    <thead>
+      <tr>
+        <th>Concepto</th>
+        <th>Condiciones</th>
+        <th>Observaciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Fee mensual servicio core</td>
+        <td>A concretar según alcance final</td>
+        <td>Incluye equipo, entregables recurrentes, reunión mensual, SPOC y canal directo</td>
+      </tr>
+      <tr>
+        <td>Facturación</td>
+        <td>Mensual</td>
+        <td>Con informe de actividad adjunto a cada factura</td>
+      </tr>
+      <tr>
+        <td>Duración inicial</td>
+        <td>12 meses</td>
+        <td>Renovación tácita salvo preaviso de 60 días</td>
+      </tr>
+      <tr>
+        <td>Bolsa de horas opcional</td>
+        <td>25 / 50 / 100 horas</td>
+        <td>Facturado contra uso real según tarifas por seniority</td>
+      </tr>
+      <tr>
+        <td>Revisión anual</td>
+        <td>IPC + revisión de alcance</td>
+        <td>Al cierre de cada ejercicio junto con el informe anual</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="eco-note reveal">
+    Todas las cifras son previas a IVA. Los gastos de viaje, cuando aplique, se facturan aparte contra justificante con tope mensual acordado. La propuesta económica concreta se cierra en conversación con el cliente una vez validado el alcance final.
+  </div>
+</section>
+
+<!-- 11. CIERRE -->
+<section id="cierre">
+  <div class="cierre-bg"><div class="cierre-glow"></div></div>
+  <div class="cierre-content">
+    <h2 class="reveal">No más<br><em>ruido.</em><br>Dirección.</h2>
+    <p class="reveal reveal-delay-1">Esta propuesta es una versión preliminar. El alcance final, el equipo nominal y la propuesta económica exacta se cierran en conversación con el cliente.</p>
+    <div class="cierre-contacts reveal reveal-delay-2">
+      <div class="contact-item">
+        <label>CONTACTO</label>
+        <span>Marc Cases</span>
+      </div>
+      <div class="contact-item">
+        <label>EMAIL</label>
+        <span>marc@moodin.eu</span>
+      </div>
+      <div class="contact-item">
+        <label>WEB</label>
+        <span>moodin.eu</span>
+      </div>
+    </div>
+    <div class="cierre-steps reveal">
+      <h4>SIGUIENTES PASOS</h4>
+      <ol>
+        <li>Sesión de scoping (60 min) para validar prioridades por dossier y perímetro CCAA</li>
+        <li>Propuesta definitiva con fee cerrado y SLA contractualizados — 5 días laborables</li>
+        <li>Onboarding de 3 semanas: audit de expedientes vivos, mapping de base y calibración de entregables</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>MOODIN POLICY SL · BARCELONA</span>
+  <span>VECTOR · INTELIGENCIA POLÍTICO-REGULATORIA · 2026</span>
+</footer>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA3RhQ--wiV6WgNzwSS_y-ZUAo5s7rX7EY",
+  authDomain: "vector-moodin.firebaseapp.com",
+  databaseURL: "https://vector-moodin-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "vector-moodin",
+  storageBucket: "vector-moodin.firebasestorage.app",
+  messagingSenderId: "476410961313",
+  appId: "1:476410961313:web:f5d103644580c6c1d73fe0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const ADMIN_EMAIL = "marc@moodin.eu";
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('login-screen').classList.add('hidden');
+    initPage();
+  }
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pw);
+  } catch(e) {
+    errEl.textContent = 'Email o contraseña incorrectos.';
+  }
+};
+
+document.getElementById('login-btn').addEventListener('click', window.doLogin);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !document.getElementById('login-screen').classList.contains('hidden')) {
+    window.doLogin();
+  }
+});
+
+function initPage() {
+  // NAV scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('main-nav');
+    nav.classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  reveals.forEach(el => observer.observe(el));
+}
+</script>
+
+</body>
+</html>
