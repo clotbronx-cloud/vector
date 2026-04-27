@@ -19,6 +19,49 @@
   </noscript>
 </head>
 <body>
+
+<div id="login_gate" style="position:fixed;inset:0;background:#1a1340;display:flex;align-items:center;justify-content:center;z-index:999999;">
+  <div style="background:#fff;padding:30px;border-radius:10px;width:300px;text-align:center;font-family:sans-serif;">
+    <h2 style="margin-bottom:20px;">Acceso</h2>
+    <input id="user" placeholder="Usuario" style="width:100%;margin-bottom:10px;padding:8px;">
+    <input id="pass" type="password" placeholder="Contraseña" style="width:100%;margin-bottom:15px;padding:8px;">
+    <button onclick="login()" style="width:100%;padding:10px;background:#5a4ec7;color:#fff;border:none;border-radius:5px;">Entrar</button>
+    <p id="error" style="color:red;margin-top:10px;display:none;">Credenciales incorrectas</p>
+  </div>
+</div>
+
+
+<script>
+const USER = "admin";
+const PASS = "1234";
+
+function checkSession() {
+  const logged = localStorage.getItem("auth");
+  if (logged === "true") {
+    document.getElementById("login_gate").style.display = "none";
+  }
+}
+
+function login() {
+  const u = document.getElementById("user").value;
+  const p = document.getElementById("pass").value;
+
+  if (u === USER && p === PASS) {
+    localStorage.setItem("auth", "true");
+    document.getElementById("login_gate").style.display = "none";
+  } else {
+    document.getElementById("error").style.display = "block";
+  }
+}
+
+function logout() {
+  localStorage.removeItem("auth");
+  location.reload();
+}
+
+document.addEventListener("DOMContentLoaded", checkSession);
+</script>
+
   <div id="__bundler_thumbnail">
   <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
     <defs>
